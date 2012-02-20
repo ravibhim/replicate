@@ -34,6 +34,7 @@ quiet    = false
 keep_id  = false
 out      = STDOUT
 force    = false
+load_file = false
 
 # parse arguments
 file = __FILE__
@@ -46,6 +47,7 @@ ARGV.options do |opts|
   opts.on("-v", "--verbose")   { verbose = true }
   opts.on("-q", "--quiet")     { quiet = true }
   opts.on("-i", "--keep-id")   { keep_id = true }
+  opts.on("-f", "--load-file=f") { |file| load_file = file }
   opts.on("--force")           { force = true }
   opts.on_tail("-h", "--help", &usage)
   opts.parse!
@@ -88,7 +90,11 @@ elsif mode == :load
   else
     Replicate::Loader.new do |loader|
       loader.log_to $stderr, verbose, quiet
-      loader.read $stdin
+      if (load_file)
+        loader.read File.open(load_file)
+      else
+        loader.read $stdin
+      end
     end
   end
 
